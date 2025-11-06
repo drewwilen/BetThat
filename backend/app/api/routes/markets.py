@@ -148,6 +148,33 @@ def get_market(
     # Get MarketOutcome entries
     market_outcomes = db.query(MarketOutcome).filter(MarketOutcome.market_id == market_id).all()
     
+    # Get last traded prices for YES and NO outcomes
+    # Since YES + NO = 1, we can calculate one from the other
+    from ...models.trade import Trade
+    from sqlalchemy import desc
+    
+    # Get the most recent trade (regardless of outcome_name or outcome)
+    # When a trade happens, it involves both YES and NO at prices that sum to 1
+    last_trade = db.query(Trade).filter(
+        Trade.market_id == market_id
+    ).order_by(desc(Trade.executed_at)).first()
+    
+    last_traded_prices = {
+        "yes": None,
+        "no": None
+    }
+    
+    if last_trade:
+        trade_price = float(last_trade.price)
+        if last_trade.outcome == "yes":
+            # YES traded at price p, so NO = 1 - p
+            last_traded_prices["yes"] = trade_price
+            last_traded_prices["no"] = 1.0 - trade_price
+        else:
+            # NO traded at price p, so YES = 1 - p
+            last_traded_prices["no"] = trade_price
+            last_traded_prices["yes"] = 1.0 - trade_price
+    
     # Add is_admin and community_name to response
     market_dict = {
         "id": market.id,
@@ -165,7 +192,8 @@ def get_market(
         "is_admin": is_admin,
         "community_name": community.name if community else None,
         "outcomes": market.outcomes if market.outcomes else ["default"],  # Include outcomes list
-        "outcomes_detailed": market_outcomes  # Include full outcome details
+        "outcomes_detailed": market_outcomes,  # Include full outcome details
+        "last_traded_prices": last_traded_prices  # Last traded prices for YES/NO
     }
     return market_dict
 

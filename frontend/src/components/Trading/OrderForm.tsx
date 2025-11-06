@@ -16,7 +16,11 @@ interface OrderFormProps {
 interface Position {
   quantity: number;
   average_price: number;
+  total_cost: number;
+  current_value?: number;
+  profit_loss?: number;
   outcome: string;
+  outcome_name: string;
 }
 
 interface MarketOutcome {
@@ -28,6 +32,10 @@ interface MarketOutcome {
 
 interface Market {
   outcomes_detailed?: MarketOutcome[];
+  last_traded_prices?: {
+    yes?: number | null;
+    no?: number | null;
+  };
 }
 
 export default function OrderForm({ marketId, outcome, outcomeName = 'default', onOrderPlaced, onOutcomeChange, yesOrderbook, noOrderbook }: OrderFormProps) {
@@ -86,6 +94,10 @@ export default function OrderForm({ marketId, outcome, outcomeName = 'default', 
     return outcomeDetail?.status === 'resolved';
   };
 
+  // Get positions for YES and NO (must be declared before use)
+  const yesPosition = positions.find((p: any) => p.outcome === 'yes');
+  const noPosition = positions.find((p: any) => p.outcome === 'no');
+  
   // Get current position for selected outcome
   const currentPosition = positions.find((p: any) => p.outcome === selectedOutcome);
   const oppositePosition = positions.find((p: any) => {
@@ -96,6 +108,10 @@ export default function OrderForm({ marketId, outcome, outcomeName = 'default', 
   // Determine what actions are available
   const hasPosition = currentPosition && (currentPosition.quantity as number) > 0;
   const hasOppositePosition = oppositePosition && (oppositePosition.quantity as number) > 0;
+  
+  // Determine if we should show "Sell" buttons instead of YES/NO toggle
+  const showSellButtons = (yesPosition && (yesPosition.quantity as number) > 0) || 
+                          (noPosition && (noPosition.quantity as number) > 0);
 
   // Get best available prices from orderbooks
   const getBestPrice = (outcome: 'yes' | 'no') => {
@@ -111,6 +127,23 @@ export default function OrderForm({ marketId, outcome, outcomeName = 'default', 
   const bestNoPrice = getBestPrice('no');
   const impliedYesPrice = bestNoPrice !== null ? (1 - bestNoPrice) : null;
   const impliedNoPrice = bestYesPrice !== null ? (1 - bestYesPrice) : null;
+  
+  // Get last traded prices from market data
+  // Ensure they sum to 100% - if one exists, calculate the other
+  const lastTradedYesRaw = market?.last_traded_prices?.yes;
+  const lastTradedNoRaw = market?.last_traded_prices?.no;
+  
+  // Calculate last traded prices that sum to 100%
+  let lastTradedYes: number | null = null;
+  let lastTradedNo: number | null = null;
+  
+  if (lastTradedYesRaw !== null && lastTradedYesRaw !== undefined) {
+    lastTradedYes = lastTradedYesRaw;
+    lastTradedNo = 1 - lastTradedYesRaw;
+  } else if (lastTradedNoRaw !== null && lastTradedNoRaw !== undefined) {
+    lastTradedNo = lastTradedNoRaw;
+    lastTradedYes = 1 - lastTradedNoRaw;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,6 +160,13 @@ export default function OrderForm({ marketId, outcome, outcomeName = 'default', 
         return;
       }
       quantityInContracts = quantityInContracts / priceToUse;
+    }
+    
+    // Ensure whole number of contracts
+    quantityInContracts = Math.floor(quantityInContracts);
+    if (quantityInContracts < 1) {
+      setError('Must buy at least 1 contract');
+      return;
     }
 
     const orderData: any = {
@@ -288,7 +328,52 @@ export default function OrderForm({ marketId, outcome, outcomeName = 'default', 
           </div>
         )}
 
-        {/* YES/NO Toggle with visual indicators */}
+        {/* Position Summary - Above order form */}
+        {(yesPosition && (yesPosition.quantity as number) > 0) || (noPosition && (noPosition.quantity as number) > 0) ? (
+          <div className="bg-gray-50 border border-gray-300 rounded-lg p-4 mb-4">
+            <div className="text-sm font-semibold text-gray-900 mb-3">Your Position</div>
+            <div className="space-y-2">
+              {yesPosition && (yesPosition.quantity as number) > 0 && (
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-600">YES:</span>
+                  <div className="text-right">
+                    <div className="font-semibold">
+                      {Math.floor(yesPosition.quantity as number)} contracts @ {((yesPosition.average_price as number) * 100).toFixed(1)}%
+                    </div>
+                    {yesPosition.current_value !== undefined && yesPosition.current_value !== null && (
+                      <div className={`text-xs ${parseFloat(String(yesPosition.profit_loss || 0)) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        Value: ${parseFloat(String(yesPosition.current_value)).toFixed(2)} 
+                        {yesPosition.profit_loss !== undefined && yesPosition.profit_loss !== null && yesPosition.total_cost && (
+                          <span> ({(parseFloat(String(yesPosition.profit_loss)) / Math.abs(parseFloat(String(yesPosition.total_cost))) * 100).toFixed(1)}%)</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              {noPosition && (noPosition.quantity as number) > 0 && (
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-600">NO:</span>
+                  <div className="text-right">
+                    <div className="font-semibold">
+                      {Math.floor(noPosition.quantity as number)} contracts @ {((noPosition.average_price as number) * 100).toFixed(1)}%
+                    </div>
+                    {noPosition.current_value !== undefined && noPosition.current_value !== null && (
+                      <div className={`text-xs ${parseFloat(String(noPosition.profit_loss || 0)) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        Value: ${parseFloat(String(noPosition.current_value)).toFixed(2)} 
+                        {noPosition.profit_loss !== undefined && noPosition.profit_loss !== null && noPosition.total_cost && (
+                          <span> ({(parseFloat(String(noPosition.profit_loss)) / Math.abs(parseFloat(String(noPosition.total_cost))) * 100).toFixed(1)}%)</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : null}
+
+        {/* YES/NO Toggle - Show SELL for opposite when you have a position */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Trade Outcome
@@ -302,15 +387,28 @@ export default function OrderForm({ marketId, outcome, outcomeName = 'default', 
               }}
               className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
                 selectedOutcome === 'yes'
-                  ? 'bg-green-600 text-white shadow-lg transform scale-105'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  ? yesPosition && (yesPosition.quantity as number) > 0
+                    ? 'bg-gray-600 text-white shadow-lg transform scale-105'
+                    : 'bg-green-600 text-white shadow-lg transform scale-105'
+                  : yesPosition && (yesPosition.quantity as number) > 0
+                    ? 'bg-gray-300 text-gray-700 hover:bg-gray-400'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
-              <div className="flex items-center justify-center space-x-2">
-                <span>YES</span>
-                {impliedYesPrice !== null && (
-                  <span className="text-xs opacity-75">
-                    @ {(impliedYesPrice * 100).toFixed(1)}%
+              <div className="flex flex-col items-center space-y-1">
+                {noPosition && (noPosition.quantity as number) > 0 ? (
+                  <span>SELL</span>
+                ) : (
+                  <>
+                    <span>YES</span>
+                    {yesPosition && (yesPosition.quantity as number) > 0 && (
+                      <span className="text-xs text-gray-500">(You own {Math.floor(yesPosition.quantity as number)})</span>
+                    )}
+                  </>
+                )}
+                {lastTradedYes !== null && (
+                  <span className="text-xs font-semibold">
+                    {(lastTradedYes * 100).toFixed(1)}%
                   </span>
                 )}
               </div>
@@ -323,20 +421,54 @@ export default function OrderForm({ marketId, outcome, outcomeName = 'default', 
               }}
               className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
                 selectedOutcome === 'no'
-                  ? 'bg-red-600 text-white shadow-lg transform scale-105'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  ? noPosition && (noPosition.quantity as number) > 0
+                    ? 'bg-gray-600 text-white shadow-lg transform scale-105'
+                    : 'bg-red-600 text-white shadow-lg transform scale-105'
+                  : noPosition && (noPosition.quantity as number) > 0
+                    ? 'bg-gray-300 text-gray-700 hover:bg-gray-400'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
-              <div className="flex items-center justify-center space-x-2">
-                <span>NO</span>
-                {impliedNoPrice !== null && (
-                  <span className="text-xs opacity-75">
-                    @ {(impliedNoPrice * 100).toFixed(1)}%
+              <div className="flex flex-col items-center space-y-1">
+                {yesPosition && (yesPosition.quantity as number) > 0 ? (
+                  <span>SELL</span>
+                ) : (
+                  <>
+                    <span>NO</span>
+                    {noPosition && (noPosition.quantity as number) > 0 && (
+                      <span className="text-xs text-gray-500">(You own {Math.floor(noPosition.quantity as number)})</span>
+                    )}
+                  </>
+                )}
+                {lastTradedNo !== null && (
+                  <span className="text-xs font-semibold">
+                    {(lastTradedNo * 100).toFixed(1)}%
                   </span>
                 )}
               </div>
             </button>
           </div>
+          {/* Show hint about buying more or selling */}
+          {yesPosition && (yesPosition.quantity as number) > 0 && selectedOutcome === 'yes' && (
+            <div className="text-xs text-gray-500 mt-2 text-center">
+              💡 Buying more YES will increase your position
+            </div>
+          )}
+          {noPosition && (noPosition.quantity as number) > 0 && selectedOutcome === 'no' && (
+            <div className="text-xs text-gray-500 mt-2 text-center">
+              💡 Buying more NO will increase your position
+            </div>
+          )}
+          {yesPosition && (yesPosition.quantity as number) > 0 && selectedOutcome === 'no' && (
+            <div className="text-xs text-gray-500 mt-2 text-center">
+              💡 Buying NO will reduce your YES position
+            </div>
+          )}
+          {noPosition && (noPosition.quantity as number) > 0 && selectedOutcome === 'yes' && (
+            <div className="text-xs text-gray-500 mt-2 text-center">
+              💡 Buying YES will reduce your NO position
+            </div>
+          )}
         </div>
 
         {/* Current Position Display - Enhanced */}
@@ -532,24 +664,35 @@ export default function OrderForm({ marketId, outcome, outcomeName = 'default', 
           </div>
           <input
             type="number"
-            step={inputMode === 'dollars' ? '0.01' : '0.01'}
-            min="0.01"
+            step={inputMode === 'dollars' ? '0.01' : '1'}
+            min={inputMode === 'dollars' ? '0.01' : '1'}
             required
             className="input-field"
             value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
-            placeholder={inputMode === 'dollars' ? "10.00" : "1.00"}
+            onChange={(e) => {
+              const value = e.target.value;
+              // For contracts, only allow whole numbers
+              if (inputMode === 'contracts') {
+                const numValue = parseFloat(value);
+                if (value === '' || (!isNaN(numValue) && numValue >= 1 && Number.isInteger(numValue))) {
+                  setQuantity(value);
+                }
+              } else {
+                setQuantity(value);
+              }
+            }}
+            placeholder={inputMode === 'dollars' ? "10.00" : "1"}
           />
           {/* Show conversion */}
           {quantity && estimatedPrice && !isNaN(parseFloat(quantity)) && estimatedPrice > 0 && (
             <div className="text-xs text-gray-500 mt-1">
               {inputMode === 'dollars' ? (
                 <>
-                  ${parseFloat(quantity).toFixed(2)} = {contracts.toFixed(2)} contracts @ {(estimatedPrice * 100).toFixed(2)}%
+                  ${parseFloat(quantity).toFixed(2)} = {Math.floor(contracts)} contracts @ {(estimatedPrice * 100).toFixed(2)}%
                 </>
               ) : (
                 <>
-                  {parseFloat(quantity).toFixed(2)} contracts = ${dollarAmount.toFixed(2)} @ {(estimatedPrice * 100).toFixed(2)}%
+                  {Math.floor(parseFloat(quantity))} contracts = ${dollarAmount.toFixed(2)} @ {(estimatedPrice * 100).toFixed(2)}%
                 </>
               )}
             </div>
@@ -593,7 +736,21 @@ export default function OrderForm({ marketId, outcome, outcomeName = 'default', 
               : 'bg-red-600 hover:bg-red-700'
           } disabled:opacity-50 disabled:cursor-not-allowed`}
         >
-          {loading ? 'Placing...' : `Buy ${selectedOutcome.toUpperCase()}`}
+          {loading ? 'Placing...' : (
+            (() => {
+              // If you have the same position, you're buying more
+              if (hasPosition && (currentPosition.quantity as number) > 0) {
+                return `Buy More ${selectedOutcome.toUpperCase()}`;
+              }
+              // If you have opposite position, you're selling/reducing it
+              if (hasOppositePosition && (oppositePosition.quantity as number) > 0) {
+                const oppositeOutcome = selectedOutcome === 'yes' ? 'NO' : 'YES';
+                return `Sell ${oppositeOutcome} (Reduce Position)`;
+              }
+              // Otherwise, you're buying the selected outcome
+              return `Buy ${selectedOutcome.toUpperCase()}`;
+            })()
+          )}
         </button>
       </form>
     </div>

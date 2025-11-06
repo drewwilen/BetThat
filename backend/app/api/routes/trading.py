@@ -68,6 +68,13 @@ async def create_order(
             detail='Only "buy" orders are allowed. To sell, buy the opposite outcome (e.g., buy NO to sell YES).'
         )
     
+    # Validate quantity is a whole number
+    if order_data.quantity != int(order_data.quantity):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='Quantity must be a whole number (no fractional contracts)'
+        )
+    
     # Validate order type
     if order_data.order_type not in ["limit", "market"]:
         raise HTTPException(

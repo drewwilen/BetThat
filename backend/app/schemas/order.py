@@ -19,6 +19,16 @@ class OrderCreate(BaseModel):
         if v != "buy":
             raise ValueError('Only "buy" orders are allowed. To sell, buy the opposite outcome (e.g., buy NO to sell YES).')
         return v
+    
+    @field_validator('quantity')
+    @classmethod
+    def validate_quantity(cls, v):
+        if v <= 0:
+            raise ValueError('Quantity must be greater than 0')
+        # Ensure whole number of contracts
+        if v != int(v):
+            raise ValueError('Quantity must be a whole number (no fractional contracts)')
+        return Decimal(int(v))  # Convert to integer Decimal
 
 
 class OrderResponse(BaseModel):

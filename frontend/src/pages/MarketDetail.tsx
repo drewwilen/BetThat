@@ -29,6 +29,10 @@ interface Market {
   community_name?: string | null;
   outcomes?: string[]; // List of outcome names (e.g., ["Team A", "Team B"] or ["yes", "no"])
   outcomes_detailed?: MarketOutcome[]; // Full outcome details
+  last_traded_prices?: {
+    yes?: number | null;
+    no?: number | null;
+  };
 }
 
 interface OrderBookEntry {
@@ -404,6 +408,8 @@ export default function MarketDetail() {
               outcome="yes"
               currentUserId={user?.id}
               onOrderCancel={handleOrderCancel}
+              lastTradedPrice={market?.last_traded_prices?.yes}
+              oppositeBuys={noOrderbook.buys}
             />
             <Orderbook
               buys={noOrderbook.buys}
@@ -411,6 +417,8 @@ export default function MarketDetail() {
               outcome="no"
               currentUserId={user?.id}
               onOrderCancel={handleOrderCancel}
+              lastTradedPrice={market?.last_traded_prices?.no}
+              oppositeBuys={yesOrderbook.buys}
             />
           </div>
           <TradeHistory 

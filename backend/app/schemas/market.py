@@ -30,6 +30,7 @@ class MarketResponse(BaseModel):
     outcomes_detailed: Optional[List[MarketOutcomeResponse]] = None  # Full outcome details
     is_admin: Optional[bool] = False  # Whether current user is admin (not from DB)
     community_name: Optional[str] = None  # Community name (not from DB directly)
+    last_traded_prices: Optional[dict] = None  # {"yes": 0.65, "no": 0.35} or None
 
     class Config:
         from_attributes = True
