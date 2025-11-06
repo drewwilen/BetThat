@@ -2,6 +2,22 @@
 
 A social platform where people trade prediction markets on their everyday lives. Bet with friends on everything from class attendance to fantasy football outcomes.
 
+## 📚 Documentation
+
+- **[Full Documentation](./DOCUMENTATION.md)** - Complete user and technical guide
+  - How prediction markets work
+  - Trading model and mechanics
+  - User guide
+  - Technical architecture
+  - API reference
+  - Testing guide
+
+- **[Developer Guide](./DEVELOPER_GUIDE.md)** - Architecture and implementation details
+  - System architecture
+  - Design decisions
+  - Code patterns
+  - Common issues & solutions
+
 ## Tech Stack
 
 - **Backend**: FastAPI (Python)
