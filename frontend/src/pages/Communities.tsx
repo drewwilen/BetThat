@@ -10,6 +10,7 @@ interface Community {
   invite_code: string;
   admin_id: number;
   created_at: string;
+  image_url?: string | null;
 }
 
 export default function Communities() {
@@ -21,6 +22,7 @@ export default function Communities() {
   const [description, setDescription] = useState('');
   const [isPublic, setIsPublic] = useState(true);
   const [inviteCode, setInviteCode] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
 
   useEffect(() => {
     fetchCommunities();
@@ -44,11 +46,13 @@ export default function Communities() {
         name,
         description,
         is_public: isPublic,
+        image_url: imageUrl || undefined,
       });
       setCommunities([response.data, ...communities]);
       setShowCreate(false);
       setName('');
       setDescription('');
+      setImageUrl('');
     } catch (error: any) {
       alert(error.response?.data?.detail || 'Failed to create community');
     }
@@ -163,6 +167,21 @@ export default function Communities() {
                   Public community
                 </label>
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Image URL (Optional)
+                </label>
+                <input
+                  type="url"
+                  className="input-field"
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  placeholder="https://example.com/logo.png"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Add a logo or image for this community
+                </p>
+              </div>
               <button type="submit" className="btn-primary">
                 Create
               </button>
@@ -178,6 +197,18 @@ export default function Communities() {
             to={`/communities/${community.id}`}
             className="card hover:shadow-lg transition-shadow"
           >
+            {community.image_url && (
+              <div className="mb-3">
+                <img 
+                  src={community.image_url} 
+                  alt={community.name}
+                  className="w-full h-32 object-cover rounded-lg"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              </div>
+            )}
             <h2 className="text-xl font-bold text-gray-900 mb-2">
               {community.name}
             </h2>

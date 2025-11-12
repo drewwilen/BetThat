@@ -312,7 +312,10 @@ export default function OrderForm({ marketId, outcome, outcomeName = 'default', 
           potentialPayout={pendingOrder.estimatedPrice 
             ? pendingOrder.quantity * (1 - pendingOrder.estimatedPrice)  // Net profit for market orders
             : potentialPayout}
-          currentPosition={currentPosition}
+          currentPosition={currentPosition ? {
+            quantity: currentPosition.quantity as number,
+            average_price: currentPosition.average_price as number
+          } : null}
           onConfirm={handleConfirm}
           onCancel={() => {
             setShowConfirmation(false);

@@ -6,7 +6,7 @@ from ...core.database import get_db
 from ...api.dependencies import get_current_user
 from ...models.user import User
 from ...models.community import Community, CommunityMember
-from ...schemas.community import CommunityCreate, CommunityResponse, CommunityMemberResponse, JoinCommunity
+from ...schemas.community import CommunityCreate, CommunityUpdate, CommunityResponse, CommunityMemberResponse, JoinCommunity
 
 router = APIRouter()
 
@@ -32,7 +32,8 @@ def create_community(
         description=community_data.description,
         is_public=community_data.is_public,
         invite_code=invite_code,
-        admin_id=current_user.id
+        admin_id=current_user.id,
+        image_url=community_data.image_url
     )
     db.add(community)
     db.commit()
@@ -139,4 +140,68 @@ def get_community_members(
         CommunityMember.community_id == community_id
     ).all()
     return members
+
+
+@router.put("/{community_id}", response_model=CommunityResponse)
+def update_community(
+    community_id: int,
+    community_data: CommunityUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Update a community (admin only)"""
+    community = db.query(Community).filter(Community.id == community_id).first()
+    if not community:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Community not found"
+        )
+    
+    # Check if user is the admin
+    if community.admin_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the community admin can edit this community"
+        )
+    
+    # Update fields if provided
+    if community_data.name is not None:
+        community.name = community_data.name
+    if community_data.description is not None:
+        community.description = community_data.description
+    if community_data.image_url is not None:
+        community.image_url = community_data.image_url
+    
+    db.commit()
+    db.refresh(community)
+    
+    return community
+
+
+@router.delete("/{community_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_community(
+    community_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Delete a community (admin only)"""
+    community = db.query(Community).filter(Community.id == community_id).first()
+    if not community:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Community not found"
+        )
+    
+    # Check if user is the admin
+    if community.admin_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the community admin can delete this community"
+        )
+    
+    # Delete the community (cascade will handle related records)
+    db.delete(community)
+    db.commit()
+    
+    return None
 

@@ -59,17 +59,24 @@ def create_market(
         description=market_data.description,
         market_type=MarketType.YES_NO,
         resolution_deadline=market_data.resolution_deadline,
-        outcomes=outcome_names  # Store as JSON for backward compatibility
+        outcomes=outcome_names,  # Store as JSON for backward compatibility
+        image_url=market_data.image_url
     )
     db.add(market)
     db.flush()  # Flush to get market.id
     
     # Create MarketOutcome entries for each outcome name
     for outcome_name in outcome_names:
+        # Get image URL for this outcome if provided
+        outcome_image_url = None
+        if market_data.outcome_images and outcome_name in market_data.outcome_images:
+            outcome_image_url = market_data.outcome_images[outcome_name]
+        
         market_outcome = MarketOutcome(
             market_id=market.id,
             name=outcome_name,
-            status=OutcomeStatus.ACTIVE
+            status=OutcomeStatus.ACTIVE,
+            image_url=outcome_image_url
         )
         db.add(market_outcome)
     
@@ -110,7 +117,9 @@ def list_markets(
             "created_at": market.created_at,
             "is_admin": False,
             "community_name": community.name if community else None,
-            "outcomes": market.outcomes if market.outcomes else ["default"]  # Include outcomes list
+            "community_image_url": community.image_url if community else None,
+            "outcomes": market.outcomes if market.outcomes else ["default"],  # Include outcomes list
+            "image_url": market.image_url  # Market image URL
         }
         result.append(market_dict)
     
@@ -191,9 +200,11 @@ def get_market(
         "created_at": market.created_at,
         "is_admin": is_admin,
         "community_name": community.name if community else None,
+        "community_image_url": community.image_url if community else None,
         "outcomes": market.outcomes if market.outcomes else ["default"],  # Include outcomes list
         "outcomes_detailed": market_outcomes,  # Include full outcome details
-        "last_traded_prices": last_traded_prices  # Last traded prices for YES/NO
+        "last_traded_prices": last_traded_prices,  # Last traded prices for YES/NO
+        "image_url": market.image_url  # Market image URL
     }
     return market_dict
 

@@ -33,6 +33,7 @@ interface Market {
     yes?: number | null;
     no?: number | null;
   };
+  image_url?: string | null; // Market image URL
 }
 
 interface OrderBookEntry {
@@ -304,8 +305,20 @@ export default function MarketDetail() {
   return (
     <div className="px-4 py-8">
       <div className="mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <h1 className="text-3xl font-bold text-gray-900">{market.title}</h1>
+        <div className="flex items-start gap-4 mb-4">
+          {market.image_url && (
+            <img 
+              src={market.image_url} 
+              alt={market.title}
+              className="w-32 h-32 object-cover rounded-lg"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
+          )}
+          <div className="flex-1">
+            <div className="flex items-center justify-between mb-2">
+              <h1 className="text-3xl font-bold text-gray-900">{market.title}</h1>
           {market.community_name && (
             <Link
               to={`/communities/${market.community_id}`}
@@ -366,6 +379,8 @@ export default function MarketDetail() {
             )}
           </div>
         )}
+          </div>
+        </div>
       </div>
 
       {market.status === 'active' && (
@@ -377,19 +392,32 @@ export default function MarketDetail() {
                 Select Outcome:
               </label>
               <div className="flex flex-wrap gap-2">
-                {availableOutcomes.map((outcomeName) => (
-                  <button
-                    key={outcomeName}
-                    onClick={() => setSelectedOutcomeName(outcomeName)}
-                    className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                      selectedOutcomeName === outcomeName
-                        ? 'bg-primary-600 text-white'
-                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                    }`}
-                  >
-                    {outcomeName}
-                  </button>
-                ))}
+                {availableOutcomes.map((outcomeName) => {
+                  const outcomeDetail = market.outcomes_detailed?.find(o => o.name === outcomeName);
+                  return (
+                    <button
+                      key={outcomeName}
+                      onClick={() => setSelectedOutcomeName(outcomeName)}
+                      className={`px-4 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 ${
+                        selectedOutcomeName === outcomeName
+                          ? 'bg-primary-600 text-white'
+                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      }`}
+                    >
+                      {outcomeDetail?.image_url && (
+                        <img 
+                          src={outcomeDetail.image_url} 
+                          alt={outcomeName}
+                          className="w-6 h-6 object-cover rounded"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      )}
+                      <span>{outcomeName}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}

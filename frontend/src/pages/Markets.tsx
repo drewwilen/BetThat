@@ -11,6 +11,8 @@ interface Market {
   created_at: string;
   community_id: number;
   community_name?: string | null;
+  community_image_url?: string | null;
+  image_url?: string | null;
 }
 
 export default function Markets() {
@@ -41,45 +43,62 @@ export default function Markets() {
       <h1 className="text-3xl font-bold text-gray-900 mb-6">All Markets</h1>
 
       <div className="space-y-4">
-        {markets.map((market) => (
-          <Link
-            key={market.id}
-            to={`/markets/${market.id}`}
-            className="card hover:shadow-lg transition-shadow block"
-          >
-            <div className="flex items-start justify-between mb-2">
-              <h2 className="text-xl font-bold text-gray-900 flex-1">{market.title}</h2>
-              {market.community_name && (
-                <Link
-                  to={`/communities/${market.community_id}`}
-                  onClick={(e) => e.stopPropagation()}
-                  className="ml-2 px-2 py-1 bg-primary-100 text-primary-700 rounded text-xs font-medium hover:bg-primary-200 transition-colors"
-                >
-                  {market.community_name}
-                </Link>
+        {markets.map((market) => {
+          // Determine which image to display: market image → community image → no image
+          const displayImageUrl = market.image_url || market.community_image_url || null;
+          
+          return (
+            <Link
+              key={market.id}
+              to={`/markets/${market.id}`}
+              className="card hover:shadow-lg transition-shadow block"
+            >
+              {displayImageUrl && (
+                <div className="mb-3">
+                  <img 
+                    src={displayImageUrl} 
+                    alt={market.title}
+                    className="w-full h-40 object-cover rounded-lg"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                </div>
               )}
-            </div>
-            {market.description && (
-              <p className="text-gray-600 mb-4">{market.description}</p>
-            )}
-            <div className="flex items-center justify-between text-sm">
-              <span
-                className={`px-2 py-1 rounded ${
-                  market.status === 'active'
-                    ? 'bg-green-100 text-green-800'
-                    : market.status === 'resolved'
-                    ? 'bg-blue-100 text-blue-800'
-                    : 'bg-gray-100 text-gray-800'
-                }`}
-              >
-                {market.status}
-              </span>
-              <span className="text-gray-500">
-                Resolves: {new Date(market.resolution_deadline).toLocaleString()}
-              </span>
-            </div>
-          </Link>
-        ))}
+              <div className="flex items-start justify-between mb-2">
+                <h2 className="text-xl font-bold text-gray-900 flex-1">{market.title}</h2>
+                {market.community_name && (
+                  <Link
+                    to={`/communities/${market.community_id}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="ml-2 px-2 py-1 bg-primary-100 text-primary-700 rounded text-xs font-medium hover:bg-primary-200 transition-colors"
+                  >
+                    {market.community_name}
+                  </Link>
+                )}
+              </div>
+              {market.description && (
+                <p className="text-gray-600 mb-4">{market.description}</p>
+              )}
+              <div className="flex items-center justify-between text-sm">
+                <span
+                  className={`px-2 py-1 rounded ${
+                    market.status === 'active'
+                      ? 'bg-green-100 text-green-800'
+                      : market.status === 'resolved'
+                      ? 'bg-blue-100 text-blue-800'
+                      : 'bg-gray-100 text-gray-800'
+                  }`}
+                >
+                  {market.status}
+                </span>
+                <span className="text-gray-500">
+                  Resolves: {new Date(market.resolution_deadline).toLocaleString()}
+                </span>
+              </div>
+            </Link>
+          );
+        })}
       </div>
 
       {markets.length === 0 && (

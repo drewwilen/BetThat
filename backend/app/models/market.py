@@ -31,6 +31,7 @@ class Market(Base):
     resolved_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     outcomes = Column(JSON, nullable=False, default=lambda: ["yes", "no"])  # List of outcome options
+    image_url = Column(String, nullable=True)  # URL for market thumbnail/image
 
     # Relationships
     community = relationship("Community", back_populates="markets")

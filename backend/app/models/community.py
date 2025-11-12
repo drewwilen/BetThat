@@ -14,6 +14,7 @@ class Community(Base):
     admin_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     email_domain = Column(String, nullable=True)  # For future email-based access
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    image_url = Column(String, nullable=True)  # URL for community image/logo
 
     # Relationships
     admin = relationship("User", back_populates="created_communities")

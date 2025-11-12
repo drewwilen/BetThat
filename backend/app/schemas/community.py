@@ -7,6 +7,13 @@ class CommunityCreate(BaseModel):
     name: str
     description: Optional[str] = None
     is_public: bool = True
+    image_url: Optional[str] = None  # URL for community image/logo
+
+
+class CommunityUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    image_url: Optional[str] = None  # URL for community image/logo
 
 
 class CommunityResponse(BaseModel):
@@ -18,6 +25,7 @@ class CommunityResponse(BaseModel):
     admin_id: int
     email_domain: Optional[str]
     created_at: datetime
+    image_url: Optional[str] = None  # URL for community image/logo
 
     class Config:
         from_attributes = True
