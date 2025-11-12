@@ -35,6 +35,8 @@ class MarketResponse(BaseModel):
     community_image_url: Optional[str] = None  # Community image URL (not from DB directly)
     last_traded_prices: Optional[dict] = None  # {"yes": 0.65, "no": 0.35} or None
     image_url: Optional[str] = None  # URL for market thumbnail/image
+    upvotes: Optional[int] = 0  # Number of upvotes
+    downvotes: Optional[int] = 0  # Number of downvotes
 
     class Config:
         from_attributes = True

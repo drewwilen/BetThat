@@ -41,4 +41,6 @@ class Market(Base):
     trades = relationship("Trade", back_populates="market", cascade="all, delete-orphan")
     positions = relationship("Position", back_populates="market", cascade="all, delete-orphan")
     market_outcomes = relationship("MarketOutcome", back_populates="market", cascade="all, delete-orphan")
+    votes = relationship("MarketVote", back_populates="market", cascade="all, delete-orphan")
+    messages = relationship("MarketMessage", back_populates="market", cascade="all, delete-orphan")
 

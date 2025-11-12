@@ -24,4 +24,6 @@ class User(Base):
     buy_trades = relationship("Trade", foreign_keys="Trade.buyer_id", back_populates="buyer")
     sell_trades = relationship("Trade", foreign_keys="Trade.seller_id", back_populates="seller")
     positions = relationship("Position", back_populates="user")
+    market_votes = relationship("MarketVote", back_populates="user", cascade="all, delete-orphan")
+    market_messages = relationship("MarketMessage", back_populates="user", cascade="all, delete-orphan")
 

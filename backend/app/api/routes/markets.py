@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 from decimal import Decimal
 from ...core.database import get_db
@@ -9,8 +9,10 @@ from ...models.user import User
 from ...models.market import Market, MarketStatus, MarketType
 from ...models.market_outcome import MarketOutcome, OutcomeStatus
 from ...models.community import Community, CommunityMember
+from ...models.market_vote import MarketVote
 from ...schemas.market import MarketCreate, MarketResponse, MarketResolve
 from ...schemas.market_outcome import MarketOutcomeResolve
+from sqlalchemy import func
 
 router = APIRouter()
 
@@ -88,9 +90,10 @@ def create_market(
 
 @router.get("/", response_model=List[MarketResponse])
 def list_markets(
-    community_id: int = None,
+    community_id: Optional[int] = None,
     skip: int = 0,
     limit: int = 100,
+    current_user: Optional[User] = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     query = db.query(Market)
@@ -98,10 +101,44 @@ def list_markets(
         query = query.filter(Market.community_id == community_id)
     markets = query.order_by(Market.created_at.desc()).offset(skip).limit(limit).all()
     
-    # Add community names to response
+    # Add community names and vote counts to response
     result = []
     for market in markets:
         community = db.query(Community).filter(Community.id == market.community_id).first()
+        
+        # Get vote counts
+        upvotes = db.query(func.count(MarketVote.id)).filter(
+            MarketVote.market_id == market.id,
+            MarketVote.vote_type == "upvote"
+        ).scalar() or 0
+        
+        downvotes = db.query(func.count(MarketVote.id)).filter(
+            MarketVote.market_id == market.id,
+            MarketVote.vote_type == "downvote"
+        ).scalar() or 0
+        
+        # Get last traded prices for YES and NO outcomes
+        from ...models.trade import Trade
+        from sqlalchemy import desc
+        
+        last_trade = db.query(Trade).filter(
+            Trade.market_id == market.id
+        ).order_by(desc(Trade.executed_at)).first()
+        
+        last_traded_prices = {
+            "yes": None,
+            "no": None
+        }
+        
+        if last_trade:
+            trade_price = float(last_trade.price)
+            if last_trade.outcome == "yes":
+                last_traded_prices["yes"] = trade_price
+                last_traded_prices["no"] = 1.0 - trade_price
+            else:
+                last_traded_prices["no"] = trade_price
+                last_traded_prices["yes"] = 1.0 - trade_price
+        
         market_dict = {
             "id": market.id,
             "community_id": market.community_id,
@@ -119,7 +156,10 @@ def list_markets(
             "community_name": community.name if community else None,
             "community_image_url": community.image_url if community else None,
             "outcomes": market.outcomes if market.outcomes else ["default"],  # Include outcomes list
-            "image_url": market.image_url  # Market image URL
+            "image_url": market.image_url,  # Market image URL
+            "upvotes": upvotes,
+            "downvotes": downvotes,
+            "last_traded_prices": last_traded_prices  # Include last traded prices
         }
         result.append(market_dict)
     
@@ -154,8 +194,22 @@ def get_market(
     # Get community name
     community = db.query(Community).filter(Community.id == market.community_id).first()
     
-    # Get MarketOutcome entries
-    market_outcomes = db.query(MarketOutcome).filter(MarketOutcome.market_id == market_id).all()
+    # Get MarketOutcome entries and serialize them
+    market_outcomes_raw = db.query(MarketOutcome).filter(MarketOutcome.market_id == market_id).all()
+    market_outcomes = [
+        {
+            "id": mo.id,
+            "market_id": mo.market_id,
+            "name": mo.name,
+            "status": mo.status.value if hasattr(mo.status, 'value') else mo.status,
+            "resolution_outcome": mo.resolution_outcome.value if mo.resolution_outcome and hasattr(mo.resolution_outcome, 'value') else mo.resolution_outcome,
+            "image_url": mo.image_url,
+            "resolved_by": mo.resolved_by,
+            "resolved_at": mo.resolved_at,
+            "created_at": mo.created_at
+        }
+        for mo in market_outcomes_raw
+    ]
     
     # Get last traded prices for YES and NO outcomes
     # Since YES + NO = 1, we can calculate one from the other

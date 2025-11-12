@@ -5,6 +5,8 @@ from .market_outcome import MarketOutcome
 from .order import Order
 from .trade import Trade
 from .position import Position
+from .market_vote import MarketVote
+from .market_message import MarketMessage
 
-__all__ = ["User", "Community", "CommunityMember", "Market", "MarketOutcome", "Order", "Trade", "Position"]
+__all__ = ["User", "Community", "CommunityMember", "Market", "MarketOutcome", "Order", "Trade", "Position", "MarketVote", "MarketMessage"]
 

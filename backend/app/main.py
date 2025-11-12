@@ -2,7 +2,7 @@ from fastapi import FastAPI, WebSocket, Query
 from fastapi.middleware.cors import CORSMiddleware
 from .core.config import settings
 from .core.database import engine, Base
-from .api.routes import auth, users, communities, markets, trading, portfolio
+from .api.routes import auth, users, communities, markets, trading, portfolio, votes, messages
 from .api.websocket import websocket_endpoint
 
 # Create database tables
@@ -27,6 +27,8 @@ app.include_router(communities.router, prefix=f"{settings.API_V1_STR}/communitie
 app.include_router(markets.router, prefix=f"{settings.API_V1_STR}/markets", tags=["markets"])
 app.include_router(trading.router, prefix=f"{settings.API_V1_STR}/trading", tags=["trading"])
 app.include_router(portfolio.router, prefix=f"{settings.API_V1_STR}/portfolio", tags=["portfolio"])
+app.include_router(votes.router, prefix=f"{settings.API_V1_STR}", tags=["votes"])
+app.include_router(messages.router, prefix=f"{settings.API_V1_STR}", tags=["messages"])
 
 # WebSocket endpoint
 @app.websocket("/ws/{market_id}")
