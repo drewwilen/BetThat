@@ -6,6 +6,7 @@ import Register from './pages/Register';
 import Communities from './pages/Communities';
 import CommunityDetail from './pages/CommunityDetail';
 import Markets from './pages/Markets';
+import Feed from './pages/Feed';
 import MarketDetail from './pages/MarketDetail';
 import Portfolio from './pages/Portfolio';
 import Home from './pages/Home';
@@ -30,6 +31,7 @@ function App() {
           }
         >
           <Route index element={<Home />} />
+          <Route path="feed" element={<Feed />} />
           <Route path="communities" element={<Communities />} />
           <Route path="communities/:id" element={<CommunityDetail />} />
           <Route path="markets" element={<Markets />} />

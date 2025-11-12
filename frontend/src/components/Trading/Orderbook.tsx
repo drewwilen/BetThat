@@ -45,21 +45,33 @@ export default function Orderbook({ buys, sells, outcome, currentUserId, onOrder
   };
 
   return (
-    <div className="card">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className={`text-lg font-bold ${outcome === 'yes' ? 'text-green-600' : 'text-red-600'}`}>
-          Trade {outcome.toUpperCase()}
-        </h3>
-        {lastTradedPrice !== null && lastTradedPrice !== undefined && (
-          <div className={`text-sm font-semibold ${outcome === 'yes' ? 'text-green-600' : 'text-red-600'}`}>
-            Last {formatPrice(lastTradedPrice)}¢
-          </div>
-        )}
+    <div className="bg-white rounded-xl shadow-lg border-2 border-gray-200 overflow-hidden">
+      <div className={`bg-gradient-to-r px-4 py-3 border-b-2 ${
+        outcome === 'yes' 
+          ? 'from-green-100 to-green-50 border-green-200' 
+          : 'from-red-100 to-red-50 border-red-200'
+      }`}>
+        <div className="flex items-center justify-between">
+          <h3 className={`text-xl font-extrabold ${
+            outcome === 'yes' ? 'text-green-700' : 'text-red-700'
+          }`}>
+            {outcome.toUpperCase()}
+          </h3>
+          {lastTradedPrice !== null && lastTradedPrice !== undefined && (
+            <div className={`text-base font-bold px-4 py-1.5 rounded-lg shadow-sm ${
+              outcome === 'yes' 
+                ? 'bg-green-200 text-green-800 border-2 border-green-300' 
+                : 'bg-red-200 text-red-800 border-2 border-red-300'
+            }`}>
+              {formatPrice(lastTradedPrice)}¢
+            </div>
+          )}
+        </div>
       </div>
       
       {/* Asks (Sell Orders) - from opposite outcome, inverted */}
-      <div className="mb-4">
-        <div className="text-xs font-semibold text-red-600 mb-2">Asks</div>
+      <div className="px-4 py-3 border-b-2 border-gray-200 bg-red-50/30">
+        <div className="text-xs font-bold text-red-700 mb-2 uppercase tracking-wide">Asks</div>
         <div className="space-y-1 max-h-40 overflow-y-auto">
           {asks.length > 0 ? (
             asks.slice(0, 10).map((entry, idx) => {
@@ -73,16 +85,16 @@ export default function Orderbook({ buys, sells, outcome, currentUserId, onOrder
               return (
                 <div
                   key={entry.order_id || `ask-${idx}`}
-                  className={`flex items-center text-sm py-1 px-2 rounded relative ${
-                    isMyOrder ? 'bg-red-100 border-2 border-red-500' : ''
+                  className={`flex items-center text-sm py-1.5 px-2 rounded relative group hover:bg-red-50 transition-colors ${
+                    isMyOrder ? 'bg-red-50 border border-red-300' : ''
                   }`}
                 >
-                  <div className="absolute left-0 top-0 bottom-0 bg-red-100 opacity-30 rounded" style={{ width: `${barWidth}%` }} />
+                  <div className="absolute left-0 top-0 bottom-0 bg-red-100 opacity-20 rounded" style={{ width: `${barWidth}%` }} />
                   <div className="flex items-center justify-between w-full relative z-10">
-                    <div className="flex items-center space-x-4 flex-1">
-                      <span className="text-red-600 font-medium text-sm w-12">{formatPrice(price)}¢</span>
-                      <span className="text-gray-700 text-sm w-20">{Math.floor(quantity)}</span>
-                      <span className="text-gray-600 text-xs">${formatTotal(price, quantity)}</span>
+                    <div className="flex items-center space-x-4 flex-1 text-xs">
+                      <span className="text-red-600 font-bold w-12">{formatPrice(price)}¢</span>
+                      <span className="text-gray-700 font-medium w-16">{Math.floor(quantity)}</span>
+                      <span className="text-gray-500 w-16">${formatTotal(price, quantity)}</span>
                     </div>
                     {isMyOrder && entry.order_id && onOrderCancel && (
                       <button
@@ -92,7 +104,7 @@ export default function Orderbook({ buys, sells, outcome, currentUserId, onOrder
                             onOrderCancel(entry.order_id);
                           }
                         }}
-                        className="ml-2 px-2 py-0.5 bg-red-500 text-white text-xs rounded hover:bg-red-600"
+                        className="ml-2 px-2 py-0.5 bg-red-500 text-white text-xs rounded hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
                         title="Cancel order"
                       >
                         ✕
@@ -103,23 +115,29 @@ export default function Orderbook({ buys, sells, outcome, currentUserId, onOrder
               );
             })
           ) : (
-            <div className="text-xs text-gray-400 text-center py-2">No asks</div>
+            <div className="text-xs text-gray-400 text-center py-4">No asks</div>
           )}
         </div>
       </div>
 
       {/* Last Traded Price Separator */}
       {lastTradedPrice !== null && lastTradedPrice !== undefined && (
-        <div className={`text-center py-2 border-y ${outcome === 'yes' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
-          <span className={`text-xs font-semibold ${outcome === 'yes' ? 'text-green-600' : 'text-red-600'}`}>
-            Trade {outcome.toUpperCase()} Last {formatPrice(lastTradedPrice)}¢
+        <div className={`text-center py-3 border-y-2 font-bold ${
+          outcome === 'yes' 
+            ? 'border-green-300 bg-green-100' 
+            : 'border-red-300 bg-red-100'
+        }`}>
+          <span className={`text-sm ${
+            outcome === 'yes' ? 'text-green-800' : 'text-red-800'
+          }`}>
+            Last Trade: {formatPrice(lastTradedPrice)}¢
           </span>
         </div>
       )}
 
       {/* Bids (Buy Orders) */}
-      <div className="mt-4">
-        <div className="text-xs font-semibold text-green-600 mb-2">Bids</div>
+      <div className="px-4 py-3 bg-green-50/30">
+        <div className="text-xs font-bold text-green-700 mb-2 uppercase tracking-wide">Bids</div>
         <div className="space-y-1 max-h-40 overflow-y-auto">
           {bids.length > 0 ? (
             bids.slice(0, 10).map((entry, idx) => {
@@ -135,16 +153,16 @@ export default function Orderbook({ buys, sells, outcome, currentUserId, onOrder
               return (
                 <div
                   key={entry.order_id || `bid-${idx}`}
-                  className={`flex items-center text-sm py-1 px-2 rounded relative ${
-                    isMyOrder ? 'bg-green-100 border-2 border-green-500' : ''
+                  className={`flex items-center text-sm py-1.5 px-2 rounded relative group hover:bg-green-50 transition-colors ${
+                    isMyOrder ? 'bg-green-50 border border-green-300' : ''
                   }`}
                 >
-                  <div className="absolute left-0 top-0 bottom-0 bg-green-100 opacity-30 rounded" style={{ width: `${barWidth}%` }} />
+                  <div className="absolute left-0 top-0 bottom-0 bg-green-100 opacity-20 rounded" style={{ width: `${barWidth}%` }} />
                   <div className="flex items-center justify-between w-full relative z-10">
-                    <div className="flex items-center space-x-4 flex-1">
-                      <span className="text-green-600 font-medium text-sm w-12">{formatPrice(price)}¢</span>
-                      <span className="text-gray-700 text-sm w-20">{Math.floor(quantity)}</span>
-                      <span className="text-gray-600 text-xs">${formatTotal(price, quantity)}</span>
+                    <div className="flex items-center space-x-4 flex-1 text-xs">
+                      <span className="text-green-600 font-bold w-12">{formatPrice(price)}¢</span>
+                      <span className="text-gray-700 font-medium w-16">{Math.floor(quantity)}</span>
+                      <span className="text-gray-500 w-16">${formatTotal(price, quantity)}</span>
                     </div>
                     {isMyOrder && entry.order_id && onOrderCancel && (
                       <button
@@ -154,7 +172,7 @@ export default function Orderbook({ buys, sells, outcome, currentUserId, onOrder
                             onOrderCancel(entry.order_id);
                           }
                         }}
-                        className="ml-2 px-2 py-0.5 bg-red-500 text-white text-xs rounded hover:bg-red-600"
+                        className="ml-2 px-2 py-0.5 bg-red-500 text-white text-xs rounded hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
                         title="Cancel order"
                       >
                         ✕
@@ -165,7 +183,7 @@ export default function Orderbook({ buys, sells, outcome, currentUserId, onOrder
               );
             })
           ) : (
-            <div className="text-xs text-gray-400 text-center py-2">No bids</div>
+            <div className="text-xs text-gray-400 text-center py-4">No bids</div>
           )}
         </div>
       </div>

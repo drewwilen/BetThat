@@ -299,8 +299,8 @@ export default function OrderForm({ marketId, outcome, outcomeName = 'default', 
   const impliedOppositePrice = currentPrice ? (1 - currentPrice) : null;
 
   return (
-    <div className="card">
-      <h3 className="text-lg font-bold mb-4">Place Order</h3>
+    <div className="bg-white rounded-xl shadow-lg border-2 border-gray-200 p-6">
+      <h3 className="text-2xl font-extrabold mb-6 text-gray-900">Place Order</h3>
       
       {showConfirmation && pendingOrder && (
         <TradeConfirmation
@@ -324,7 +324,7 @@ export default function OrderForm({ marketId, outcome, outcomeName = 'default', 
         />
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
             {error}
@@ -378,39 +378,39 @@ export default function OrderForm({ marketId, outcome, outcomeName = 'default', 
 
         {/* YES/NO Toggle - Show SELL for opposite when you have a position */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
             Trade Outcome
           </label>
-          <div className="flex space-x-4">
+          <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
               onClick={() => {
                 setSelectedOutcome('yes');
                 onOutcomeChange?.('yes');
               }}
-              className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
+              className={`py-4 px-4 rounded-xl font-bold transition-all transform ${
                 selectedOutcome === 'yes'
                   ? yesPosition && (yesPosition.quantity as number) > 0
-                    ? 'bg-gray-600 text-white shadow-lg transform scale-105'
-                    : 'bg-green-600 text-white shadow-lg transform scale-105'
+                    ? 'bg-gray-700 text-white shadow-xl scale-105 ring-4 ring-gray-400'
+                    : 'bg-green-600 text-white shadow-xl scale-105 ring-4 ring-green-400'
                   : yesPosition && (yesPosition.quantity as number) > 0
-                    ? 'bg-gray-300 text-gray-700 hover:bg-gray-400'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    ? 'bg-gray-200 text-gray-700 hover:bg-gray-300 shadow-sm'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 shadow-sm'
               }`}
             >
               <div className="flex flex-col items-center space-y-1">
                 {noPosition && (noPosition.quantity as number) > 0 ? (
-                  <span>SELL</span>
+                  <span className="text-sm">SELL</span>
                 ) : (
                   <>
-                    <span>YES</span>
+                    <span className="text-lg">YES</span>
                     {yesPosition && (yesPosition.quantity as number) > 0 && (
-                      <span className="text-xs text-gray-500">(You own {Math.floor(yesPosition.quantity as number)})</span>
+                      <span className="text-xs text-gray-300">You own {Math.floor(yesPosition.quantity as number)}</span>
                     )}
                   </>
                 )}
                 {lastTradedYes !== null && (
-                  <span className="text-xs font-semibold">
+                  <span className="text-xs font-semibold opacity-90">
                     {(lastTradedYes * 100).toFixed(1)}%
                   </span>
                 )}
@@ -422,29 +422,29 @@ export default function OrderForm({ marketId, outcome, outcomeName = 'default', 
                 setSelectedOutcome('no');
                 onOutcomeChange?.('no');
               }}
-              className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
+              className={`py-4 px-4 rounded-xl font-bold transition-all transform ${
                 selectedOutcome === 'no'
                   ? noPosition && (noPosition.quantity as number) > 0
-                    ? 'bg-gray-600 text-white shadow-lg transform scale-105'
-                    : 'bg-red-600 text-white shadow-lg transform scale-105'
+                    ? 'bg-gray-700 text-white shadow-xl scale-105 ring-4 ring-gray-400'
+                    : 'bg-red-600 text-white shadow-xl scale-105 ring-4 ring-red-400'
                   : noPosition && (noPosition.quantity as number) > 0
-                    ? 'bg-gray-300 text-gray-700 hover:bg-gray-400'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    ? 'bg-gray-200 text-gray-700 hover:bg-gray-300 shadow-sm'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 shadow-sm'
               }`}
             >
               <div className="flex flex-col items-center space-y-1">
                 {yesPosition && (yesPosition.quantity as number) > 0 ? (
-                  <span>SELL</span>
+                  <span className="text-sm">SELL</span>
                 ) : (
                   <>
-                    <span>NO</span>
+                    <span className="text-lg">NO</span>
                     {noPosition && (noPosition.quantity as number) > 0 && (
-                      <span className="text-xs text-gray-500">(You own {Math.floor(noPosition.quantity as number)})</span>
+                      <span className="text-xs text-gray-300">You own {Math.floor(noPosition.quantity as number)}</span>
                     )}
                   </>
                 )}
                 {lastTradedNo !== null && (
-                  <span className="text-xs font-semibold">
+                  <span className="text-xs font-semibold opacity-90">
                     {(lastTradedNo * 100).toFixed(1)}%
                   </span>
                 )}
@@ -476,8 +476,8 @@ export default function OrderForm({ marketId, outcome, outcomeName = 'default', 
 
         {/* Current Position Display - Enhanced */}
         {currentPosition && (currentPosition.quantity as number) > 0 && (
-          <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4">
-            <div className="text-sm font-semibold text-blue-900 mb-3">Your Position</div>
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-400 rounded-xl p-4 shadow-md">
+            <div className="text-sm font-extrabold text-blue-900 mb-3 uppercase tracking-wide">Your Position</div>
             
             {/* Show what they have */}
             <div className="space-y-2">
@@ -524,14 +524,14 @@ export default function OrderForm({ marketId, outcome, outcomeName = 'default', 
         )}
 
         {hasOppositePosition && (
-          <div className="bg-amber-50 border-2 border-amber-300 rounded-lg p-4">
+          <div className="bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-400 rounded-xl p-4 shadow-md">
             <div className="flex items-center justify-between mb-2">
-              <div className="text-sm font-semibold text-amber-900">Opposite Position</div>
-              <div className="text-sm font-bold text-amber-700">
+              <div className="text-sm font-extrabold text-amber-900 uppercase tracking-wide">Opposite Position</div>
+              <div className="text-sm font-bold text-amber-800">
                 {(oppositePosition.quantity as number)} {(selectedOutcome === 'yes' ? 'NO' : 'YES')}
               </div>
             </div>
-            <div className="text-xs text-amber-600">
+            <div className="text-xs text-amber-800 font-semibold">
               Buying {selectedOutcome.toUpperCase()} will reduce your opposite position by up to {Math.min(parseFloat(quantity) || 0, (oppositePosition.quantity as number))} contracts.
             </div>
           </div>
@@ -595,25 +595,25 @@ export default function OrderForm({ marketId, outcome, outcomeName = 'default', 
 
         {/* Market order price display */}
         {orderType === 'market' && estimatedPrice !== null && (
-          <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4">
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-400 rounded-xl p-4 shadow-md">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-blue-900">Estimated Price:</span>
-              <span className="text-2xl font-bold text-blue-700">
+              <span className="text-sm font-bold text-blue-900 uppercase tracking-wide">Estimated Price:</span>
+              <span className="text-3xl font-extrabold text-blue-800">
                 {(estimatedPrice * 100).toFixed(2)}%
               </span>
             </div>
-            <div className="text-xs text-blue-600 mt-1">
+            <div className="text-xs text-blue-700 font-semibold mt-2 bg-blue-200 px-2 py-1 rounded-full inline-block">
               ✓ Market order available - matching order found on opposite side
             </div>
           </div>
         )}
         
         {orderType === 'market' && estimatedPrice === null && (
-          <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4">
+          <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-2 border-yellow-400 rounded-xl p-4 shadow-md">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-yellow-900">⚠️ Market Order Unavailable</span>
+              <span className="text-sm font-bold text-yellow-900 uppercase tracking-wide">⚠️ Market Order Unavailable</span>
             </div>
-            <div className="text-xs text-yellow-700 mt-1">
+            <div className="text-xs text-yellow-800 font-semibold mt-1">
               No matching orders found on the {(selectedOutcome === 'yes' ? 'NO' : 'YES')} side. 
               Use a limit order instead, or wait for someone to place a {(selectedOutcome === 'yes' ? 'NO' : 'YES')} order.
             </div>
@@ -709,20 +709,20 @@ export default function OrderForm({ marketId, outcome, outcomeName = 'default', 
 
         {/* Show potential payout for market orders */}
         {orderType === 'market' && quantity && estimatedPrice && !isNaN(parseFloat(quantity)) && contracts > 0 && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-            <div className="text-sm font-medium text-green-900 mb-2">If {selectedOutcome.toUpperCase()} wins:</div>
+          <div className="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-400 rounded-xl p-4 shadow-md">
+            <div className="text-sm font-extrabold text-green-900 mb-2 uppercase tracking-wide">If {selectedOutcome.toUpperCase()} wins:</div>
             <div className="space-y-1">
-              <div className="flex justify-between">
-                <span className="text-xs text-gray-600">You pay:</span>
-                <span className="text-sm font-semibold text-gray-700">${(contracts * estimatedPrice).toFixed(2)}</span>
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-gray-700 font-semibold">You pay:</span>
+                <span className="text-sm font-bold text-gray-900">${(contracts * estimatedPrice).toFixed(2)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-xs text-gray-600">You get:</span>
-                <span className="text-sm font-semibold text-green-700">${(contracts * 1.0).toFixed(2)}</span>
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-gray-700 font-semibold">You get:</span>
+                <span className="text-sm font-bold text-green-800">${(contracts * 1.0).toFixed(2)}</span>
               </div>
-              <div className="border-t border-green-300 pt-1 mt-1 flex justify-between items-center">
-                <span className="text-sm font-medium text-green-900">Your profit:</span>
-                <span className="text-lg font-bold text-green-700">
+              <div className="border-t-2 border-green-300 pt-2 mt-2 flex justify-between items-center">
+                <span className="text-sm font-extrabold text-green-900 uppercase tracking-wide">Your profit:</span>
+                <span className="text-xl font-extrabold text-green-800">
                   +${potentialPayout.toFixed(2)}
                 </span>
               </div>
@@ -733,11 +733,11 @@ export default function OrderForm({ marketId, outcome, outcomeName = 'default', 
         <button
           type="submit"
           disabled={loading}
-          className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-all ${
+          className={`w-full py-5 px-4 rounded-xl font-extrabold text-white transition-all shadow-xl text-lg ${
             selectedOutcome === 'yes'
-              ? 'bg-green-600 hover:bg-green-700'
-              : 'bg-red-600 hover:bg-red-700'
-          } disabled:opacity-50 disabled:cursor-not-allowed`}
+              ? 'bg-green-600 hover:bg-green-700 hover:shadow-2xl ring-4 ring-green-300'
+              : 'bg-red-600 hover:bg-red-700 hover:shadow-2xl ring-4 ring-red-300'
+          } disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:ring-0`}
         >
           {loading ? 'Placing...' : (
             (() => {

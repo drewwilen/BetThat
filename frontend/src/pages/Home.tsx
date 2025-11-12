@@ -14,13 +14,13 @@ export default function Home() {
           Trade prediction markets with your friends. Put your money where your mouth is.
         </p>
         {user ? (
-          <div className="bg-primary-50 rounded-lg p-6 max-w-md mx-auto">
-            <div className="text-2xl font-bold text-primary-600 mb-2">
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-8 max-w-md mx-auto border-2 border-blue-300 shadow-lg">
+            <div className="text-4xl font-extrabold text-blue-700 mb-2">
               {typeof user.token_balance === 'number' 
                 ? user.token_balance.toFixed(2) 
                 : parseFloat(user.token_balance || '0').toFixed(2)} tokens
             </div>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-blue-800 font-semibold uppercase tracking-wide">
               Your balance
             </div>
           </div>
@@ -32,20 +32,20 @@ export default function Home() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
         <Link
           to="/communities"
-          className="card hover:shadow-lg transition-shadow"
+          className="card hover:shadow-xl hover:border-gray-300 transition-all border-2"
         >
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Communities</h2>
-          <p className="text-gray-600">
+          <h2 className="text-2xl font-extrabold text-gray-900 mb-2">Communities</h2>
+          <p className="text-gray-700 font-medium">
             Join or create communities to bet with friends. Private communities require invite codes.
           </p>
         </Link>
 
         <Link
           to="/markets"
-          className="card hover:shadow-lg transition-shadow"
+          className="card hover:shadow-xl hover:border-gray-300 transition-all border-2"
         >
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Markets</h2>
-          <p className="text-gray-600">
+          <h2 className="text-2xl font-extrabold text-gray-900 mb-2">Markets</h2>
+          <p className="text-gray-700 font-medium">
             Browse active prediction markets. Trade yes/no positions on everything happening around you.
           </p>
         </Link>
