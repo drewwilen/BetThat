@@ -13,7 +13,13 @@ app = FastAPI(title=settings.PROJECT_NAME)
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:3000", "http://127.0.0.1:5173"],  # React dev servers
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173",
+        "https://delightful-meadow-074d6150f.3.azurestaticapps.net",
+    ],  # React dev servers + Azure Static Web App
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
@@ -49,4 +55,3 @@ def root():
 @app.get("/health")
 def health_check():
     return {"status": "healthy"}
-
