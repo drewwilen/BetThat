@@ -41,3 +41,16 @@ out/
 build/
 dist/
 
+webapp_logs/LogFiles/__lastCheckTime.txt
+webapp_logs/LogFiles/kudu/trace/03aca2797d74-356686ac-d0b7-44c3-9b24-5d2f7dea6dca.txt
+webapp_logs/LogFiles/kudu/trace/03aca2797d74-f4fd85df-06f5-4a71-b4f1-e60c09d3c7ca.txt
+webapp_logs/LogFiles/kudu/trace/48e3d32e8b2b-69d4ca05-3664-4c11-b50f-0c4690925935.txt
+webapp_logs/LogFiles/kudu/trace/2025-11-15T18-52-18_463d02_001_Shutdown_0s.xml
+webapp_logs/LogFiles/kudu/trace/2025-11-15T18-54-24_463d02_001_Shutdown_0s.xml
+webapp_logs/LogFiles/kudu/trace/2025-11-15T18-55-42_463d02_001_Startup_GET_logstream_0s.xml
+webapp_logs/LogFiles/kudu/trace/2025-11-15T18-55-42_463d02_002_GET_logstream_pending.xml
+webapp_logs/LogFiles/kudu/trace/2025-11-15T19-09-32_463d02_003_Shutdown_0s.xml
+webapp_logs/LogFiles/kudu/trace/2025-11-15T19-12-36_463d02_001_Startup_GET_logstream_0s.xml
+webapp_logs/LogFiles/kudu/trace/2025-11-15T19-12-36_463d02_002_GET_logstream_pending.xml
+webapp_logs/LogFiles/kudu/trace/2025-11-15T19-17-45_463d02_003_GET_logstream_pending.xml
+webapp_logs/LogFiles/kudu/trace/2025-11-15T19-20-34_463d02_004_GET_dump_pending.xml
