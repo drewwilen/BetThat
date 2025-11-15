@@ -15,7 +15,7 @@ interface OrderbookProps {
   oppositeBuys?: OrderBookEntry[]; // Buy orders from opposite outcome (for displaying asks)
 }
 
-export default function Orderbook({ buys, sells, outcome, currentUserId, onOrderCancel, lastTradedPrice, oppositeBuys = [] }: OrderbookProps) {
+export default function Orderbook({ buys, sells: _sells, outcome, currentUserId, onOrderCancel, lastTradedPrice, oppositeBuys = [] }: OrderbookProps) {
   // Convert opposite outcome's buy orders to "asks" (sell orders) for this outcome
   // If NO is buying at price p, that means YES can be sold at price (1-p)
   const asks = oppositeBuys.map(entry => {
@@ -77,7 +77,6 @@ export default function Orderbook({ buys, sells, outcome, currentUserId, onOrder
             asks.slice(0, 10).map((entry, idx) => {
               const price = entry.price;
               const quantity = entry.quantity;
-              const total = price * quantity;
               const isMyOrder = currentUserId && entry.user_id === currentUserId;
               const maxAskQuantity = asks.length > 0 ? Math.max(...asks.map(a => a.quantity)) : 1;
               const barWidth = Math.min((quantity / maxAskQuantity) * 100, 100);
@@ -143,7 +142,6 @@ export default function Orderbook({ buys, sells, outcome, currentUserId, onOrder
             bids.slice(0, 10).map((entry, idx) => {
               const price = typeof entry.price === 'number' ? entry.price : parseFloat(entry.price || '0');
               const quantity = typeof entry.quantity === 'number' ? entry.quantity : parseFloat(entry.quantity || '0');
-              const total = price * quantity;
               const isMyOrder = currentUserId && entry.user_id === currentUserId;
               const maxBidQuantity = bids.length > 0 
                 ? Math.max(...bids.map(b => typeof b.quantity === 'number' ? b.quantity : parseFloat(b.quantity || '0')))
@@ -190,4 +188,3 @@ export default function Orderbook({ buys, sells, outcome, currentUserId, onOrder
     </div>
   );
 }
-

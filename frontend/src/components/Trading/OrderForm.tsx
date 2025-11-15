@@ -109,10 +109,6 @@ export default function OrderForm({ marketId, outcome, outcomeName = 'default', 
   const hasPosition = currentPosition && (currentPosition.quantity as number) > 0;
   const hasOppositePosition = oppositePosition && (oppositePosition.quantity as number) > 0;
   
-  // Determine if we should show "Sell" buttons instead of YES/NO toggle
-  const showSellButtons = (yesPosition && (yesPosition.quantity as number) > 0) || 
-                          (noPosition && (noPosition.quantity as number) > 0);
-
   // Get best available prices from orderbooks
   const getBestPrice = (outcome: 'yes' | 'no') => {
     const orderbook = outcome === 'yes' ? yesOrderbook : noOrderbook;
@@ -296,8 +292,6 @@ export default function OrderForm({ marketId, outcome, outcomeName = 'default', 
   const potentialPayout = contracts && currentPrice 
     ? contracts * (1 - currentPrice)  // Net profit
     : 0;
-  const impliedOppositePrice = currentPrice ? (1 - currentPrice) : null;
-
   return (
     <div className="bg-white rounded-xl shadow-lg border-2 border-gray-200 p-6">
       <h3 className="text-2xl font-extrabold mb-6 text-gray-900">Place Order</h3>

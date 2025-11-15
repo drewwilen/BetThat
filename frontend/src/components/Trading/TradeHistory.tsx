@@ -17,11 +17,10 @@ interface Trade {
 
 interface TradeHistoryProps {
   marketId: number;
-  outcome?: string;
   outcomeName?: string;
 }
 
-export default function TradeHistory({ marketId, outcome, outcomeName = 'default' }: TradeHistoryProps) {
+export default function TradeHistory({ marketId, outcomeName = 'default' }: TradeHistoryProps) {
   const [trades, setTrades] = useState<Trade[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -128,4 +127,3 @@ export default function TradeHistory({ marketId, outcome, outcomeName = 'default
     </div>
   );
 }
-

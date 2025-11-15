@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import api from '../../services/api';
-import { store } from '../../store/authStore';
 
 interface VoteButtonProps {
   marketId: number;
@@ -10,7 +9,6 @@ interface VoteButtonProps {
 }
 
 export default function VoteButton({ marketId, initialUpvotes = 0, initialDownvotes = 0, compact = false }: VoteButtonProps) {
-  const user = store((state) => state.user);
   const [upvotes, setUpvotes] = useState(initialUpvotes);
   const [downvotes, setDownvotes] = useState(initialDownvotes);
   const [userVote, setUserVote] = useState<string | null>(null);
@@ -120,4 +118,3 @@ export default function VoteButton({ marketId, initialUpvotes = 0, initialDownvo
     </div>
   );
 }
-

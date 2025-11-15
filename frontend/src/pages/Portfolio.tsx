@@ -60,23 +60,6 @@ const getOutcomeColor = (outcomeName: string): typeof outcomeColors[0] => {
   return outcomeColors[Math.abs(hash) % outcomeColors.length];
 };
 
-// Format date for display
-const formatDate = (dateString: string | undefined): string => {
-  if (!dateString) return 'Never';
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 1) return 'Just now';
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
-  return date.toLocaleDateString();
-};
-
 export default function Portfolio() {
   const { marketId } = useParams<{ marketId?: string }>();
   const [positions, setPositions] = useState<Position[]>([]);
@@ -286,15 +269,6 @@ export default function Portfolio() {
 
     return filtered;
   }, [positions, searchQuery, filterOutcomeName, filterSide, filterStatus, sortBy, sortOrder]);
-
-  const handleSort = (newSortBy: string) => {
-    if (sortBy === newSortBy) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(newSortBy);
-      setSortOrder('desc');
-    }
-  };
 
   if (loading) {
     return (

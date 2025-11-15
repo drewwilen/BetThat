@@ -111,7 +111,9 @@ export default function Feed() {
       const positions = positionsResponse.data || [];
       
       // Get unique market IDs from positions
-      const marketIds = [...new Set(positions.map((p: any) => p.market_id))];
+      const marketIds: number[] = Array.from(
+        new Set<number>(positions.map((p: any) => Number(p.market_id)))
+      ).filter((id): id is number => !Number.isNaN(id));
       
       if (marketIds.length === 0) {
         setMarkets([]);
@@ -588,4 +590,3 @@ export default function Feed() {
     </div>
   );
 }
-

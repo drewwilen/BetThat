@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface TradeConfirmationProps {
   orderType: 'limit' | 'market';
   outcome: 'yes' | 'no';
@@ -154,4 +152,3 @@ export default function TradeConfirmation({
     </div>
   );
 }
-

@@ -59,8 +59,6 @@ export default function MarketDetail() {
   const [loading, setLoading] = useState(true);
   const [selectedOutcomeName, setSelectedOutcomeName] = useState<string>('default');
   const [selectedOutcome, setSelectedOutcome] = useState<'yes' | 'no'>('yes');
-  // Store orderbooks by outcome_name and outcome (yes/no)
-  const [orderbooks, setOrderbooks] = useState<Record<string, { yes: OrderBook; no: OrderBook }>>({});
   // Store both YES and NO orderbooks for the selected outcome_name
   const [yesOrderbook, setYesOrderbook] = useState<OrderBook>({ buys: [], sells: [] });
   const [noOrderbook, setNoOrderbook] = useState<OrderBook>({ buys: [], sells: [] });
@@ -76,7 +74,6 @@ export default function MarketDetail() {
 
   useEffect(() => {
     if (id && selectedOutcomeName) {
-      fetchOrderbooks();
       fetchBothOrderbooks(); // Fetch both YES and NO orderbooks
     }
   }, [id, selectedOutcomeName]);
@@ -151,15 +148,6 @@ export default function MarketDetail() {
                 sells: convertEntries(data.sells || [])
               };
               
-              // Update the orderbooks state
-              setOrderbooks(prev => ({
-                ...prev,
-                [outcomeName]: {
-                  ...prev[outcomeName],
-                  [outcome]: convertedData
-                }
-              }));
-              
               // Update the separate YES/NO orderbooks if this is the selected outcome_name
               // Always update regardless of which outcome_name (for simplicity)
               if (outcomeName === selectedOutcomeName) {
@@ -174,7 +162,8 @@ export default function MarketDetail() {
         },
         (error) => {
           // Only log if it's not a normal closure
-          if (error.target?.readyState !== WebSocket.CLOSED) {
+          const target = (error as Event & { target?: EventTarget | null }).target as WebSocket | null;
+          if (target && target.readyState !== WebSocket.CLOSED) {
             console.error('WebSocket error:', error);
           }
         }
@@ -212,50 +201,8 @@ export default function MarketDetail() {
     }
   };
 
-  const fetchOrderbooks = async () => {
-    if (!id || !selectedOutcomeName) return;
-    try {
-      const [yesResponse, noResponse] = await Promise.all([
-        api.get(`/trading/markets/${id}/orderbook`, {
-          params: { outcome_name: selectedOutcomeName, outcome: 'yes' }
-        }),
-        api.get(`/trading/markets/${id}/orderbook`, {
-          params: { outcome_name: selectedOutcomeName, outcome: 'no' }
-        }),
-      ]);
-      
-      // Convert Decimal strings to numbers and preserve order_id/user_id
-      const convertEntries = (entries: any[]) => {
-        return entries.map(entry => ({
-          price: typeof entry.price === 'number' ? entry.price : parseFloat(entry.price || '0'),
-          quantity: typeof entry.quantity === 'number' ? entry.quantity : parseFloat(entry.quantity || '0'),
-          order_id: entry.order_id || null,
-          user_id: entry.user_id || null,
-        }));
-      };
-      
-      // Update orderbooks state for this outcome_name
-      setOrderbooks(prev => ({
-        ...prev,
-        [selectedOutcomeName]: {
-          yes: {
-            buys: convertEntries(yesResponse.data.buys || []),
-            sells: convertEntries(yesResponse.data.sells || [])
-          },
-          no: {
-            buys: convertEntries(noResponse.data.buys || []),
-            sells: convertEntries(noResponse.data.sells || [])
-          }
-        }
-      }));
-    } catch (error) {
-      console.error('Failed to fetch orderbooks:', error);
-    }
-  };
-
   const handleOrderPlaced = () => {
-    fetchOrderbooks();
-    fetchBothOrderbooks(); // Also refresh both orderbooks
+    fetchBothOrderbooks(); // Refresh orderbooks
   };
 
   const handleOrderCancel = async (orderId: number) => {
@@ -265,7 +212,6 @@ export default function MarketDetail() {
     
     try {
       await api.post(`/trading/orders/${orderId}/cancel`);
-      fetchOrderbooks(); // Refresh orderbook
       fetchBothOrderbooks(); // Refresh both YES and NO orderbooks
     } catch (error: any) {
       alert(error.response?.data?.detail || 'Failed to cancel order');
@@ -300,9 +246,6 @@ export default function MarketDetail() {
     return <div className="text-center py-12">Market not found</div>;
   }
 
-  // Get current orderbook based on selected outcome_name and outcome
-  const currentOrderbook = orderbooks[selectedOutcomeName]?.[selectedOutcome] || { buys: [], sells: [] };
-  
   // Get available outcome names (or default to ["default"])
   const availableOutcomes = market?.outcomes && market.outcomes.length > 0 
     ? market.outcomes 
@@ -511,4 +454,3 @@ export default function MarketDetail() {
     </div>
   );
 }
-

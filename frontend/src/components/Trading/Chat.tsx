@@ -21,7 +21,6 @@ export default function Chat({ marketId, onCollapse }: ChatProps) {
   const user = store((state) => state.user);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -162,4 +161,3 @@ export default function Chat({ marketId, onCollapse }: ChatProps) {
     </div>
   );
 }
-
