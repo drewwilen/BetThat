@@ -104,9 +104,19 @@ def upgrade() -> None:
     op.alter_column('trades', 'outcome_name', nullable=False)
     op.alter_column('positions', 'outcome_name', nullable=False)
     
-    # Drop old unique constraint on positions and create new one
-    op.drop_constraint('unique_user_market_outcome', 'positions', type_='unique')
-    op.create_unique_constraint('unique_user_market_outcome_side', 'positions', ['user_id', 'market_id', 'outcome_name', 'outcome'])
+    # Drop old unique constraint on positions if it exists, then create new one
+    constraint_exists = conn.execute(sa.text("""
+        SELECT 1 FROM information_schema.table_constraints
+        WHERE table_name = 'positions' AND constraint_name = 'unique_user_market_outcome'
+    """)).scalar()
+    if constraint_exists:
+        op.drop_constraint('unique_user_market_outcome', 'positions', type_='unique')
+    new_constraint_exists = conn.execute(sa.text("""
+        SELECT 1 FROM information_schema.table_constraints
+        WHERE table_name = 'positions' AND constraint_name = 'unique_user_market_outcome_side'
+    """)).scalar()
+    if not new_constraint_exists:
+        op.create_unique_constraint('unique_user_market_outcome_side', 'positions', ['user_id', 'market_id', 'outcome_name', 'outcome'])
     
     # Add indexes for better query performance
     op.create_index('ix_orders_market_outcome', 'orders', ['market_id', 'outcome_name', 'outcome'], unique=False)
