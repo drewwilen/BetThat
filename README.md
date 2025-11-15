@@ -1,181 +1,123 @@
-# BetThat 2.0 - Build Specification
+# BetThat - Social Prediction Market Platform
 
-> **New here?** Start with [`START_HERE.md`](START_HERE.md) for a quick 5-minute guide!
+A social platform where people trade prediction markets on their everyday lives. Bet with friends on everything from class attendance to fantasy football outcomes.
 
-Welcome! This repository contains the complete specification for building **BetThat 2.0**, an enhanced social prediction market platform.
+## 📚 Documentation
 
-## 📚 Documentation Structure
+- **[Full Documentation](./DOCUMENTATION.md)** - Complete user and technical guide
+  - How prediction markets work
+  - Trading model and mechanics
+  - User guide
+  - Technical architecture
+  - API reference
+  - Testing guide
 
-This repo contains three key documents that work together:
+- **[Developer Guide](./DEVELOPER_GUIDE.md)** - Architecture and implementation details
+  - System architecture
+  - Design decisions
+  - Code patterns
+  - Common issues & solutions
 
-### 1. **ONE_SHOT_PROMPT.md** ⚡ START HERE
-**Purpose**: Condensed, ready-to-use prompt for AI/developer  
-**Use when**: Starting the build, need quick reference, want everything in one place  
-**Best for**: Initial implementation, AI-assisted development
+## Tech Stack
 
-This is your **primary build prompt**. It contains:
-- Core concepts and requirements
-- Complete feature list
-- Critical implementation details
-- Database schema
-- API endpoints
-- Build order
+- **Backend**: FastAPI (Python)
+- **Frontend**: React + TypeScript
+- **Database**: PostgreSQL
+- **Cache**: Redis
+- **Real-time**: WebSockets
 
-👉 **Start with this file** - it's designed to be copy-pasted directly into an AI assistant or given to a developer.
+## Features
 
-### 2. **GOD_PROMPT.md** 📖 Deep Dive
-**Purpose**: Comprehensive specification with full context  
-**Use when**: Need detailed explanations, understanding design decisions, reference during development  
-**Best for**: Understanding the "why", detailed planning, troubleshooting
+- Token-based trading system
+- Yes/No prediction markets
+- Public and private communities with invite codes
+- Real-time orderbook and trade updates
+- Community-admin market resolution
 
-Contains:
-- Complete feature breakdown
-- Technical architecture details
-- Design principles and rationale
-- Testing requirements
-- Deployment considerations
+## Setup
 
-👉 **Reference this** when you need more context or details about specific features.
+### Prerequisites
 
-### 3. **QUICK_START_GUIDE.md** 🚀 Implementation Patterns
-**Purpose**: Code patterns, algorithms, and implementation details  
-**Use when**: Actually coding, need specific patterns, understanding algorithms  
-**Best for**: Implementation phase, code reference, pattern library
+- Python 3.9+
+- Node.js 16+ (Node.js 18+ recommended for latest features)
+- Docker and Docker Compose
 
-Contains:
-- Trading engine patterns
-- Orderbook display logic
-- Feed algorithm
-- Leaderboard calculations
-- Database schema highlights
-- Component structure
+### Backend Setup
 
-👉 **Use this** during active development for specific implementation patterns.
+1. Create a virtual environment:
+```bash
+cd backend
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
 
-## 🎯 How to Use These Documents
+2. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-### For AI-Assisted Development:
+3. Set up environment variables:
+```bash
+cp .env.example .env
+# Edit .env with your configuration
+```
 
-1. **Initial Setup**:
-   ```
-   "I'm building BetThat 2.0. Please read ONE_SHOT_PROMPT.md and set up the project structure 
-   with FastAPI backend and React frontend."
-   ```
+4. Start PostgreSQL and Redis:
+```bash
+docker compose up -d
+```
 
-2. **Feature Implementation**:
-   ```
-   "Implement the trading engine following the buy-only model described in ONE_SHOT_PROMPT.md. 
-   Reference QUICK_START_GUIDE.md for the trading engine patterns."
-   ```
+   **Note:** If port 5432 is already in use, the docker-compose.yml uses port 5433 instead. Make sure your `.env` file uses the correct port (5433).
 
-3. **When Stuck**:
-   ```
-   "I need more context on [feature]. Please check GOD_PROMPT.md section [X]."
-   ```
+5. Run database migrations:
+```bash
+alembic upgrade head
+```
 
-### For Human Developers:
+6. Start the backend server:
+```bash
+uvicorn app.main:app --reload
+```
 
-1. **Read ONE_SHOT_PROMPT.md first** - Get the big picture
-2. **Reference GOD_PROMPT.md** - Understand the details
-3. **Use QUICK_START_GUIDE.md** - Copy patterns as needed
+The API will be available at `http://localhost:8000`
+API documentation at `http://localhost:8000/docs`
 
-## 🏗️ Recommended Build Order
+### Frontend Setup
 
-Follow this sequence for a systematic build:
+(TODO: Frontend setup instructions will be added)
 
-### Phase 1: Foundation (Week 1)
-- [ ] Project setup (FastAPI + React + PostgreSQL + Redis)
-- [ ] Database schema implementation
-- [ ] User authentication system
-- [ ] Basic API structure
+## Development
 
-**Reference**: ONE_SHOT_PROMPT.md → "Build Order" section
+### Running Tests
 
-### Phase 2: Core Trading (Week 2)
-- [ ] Buy-only trading engine
-- [ ] Order matching logic
-- [ ] Orderbook management (Redis)
-- [ ] Position tracking
-- [ ] Basic trading UI
+(TODO: Add test instructions)
 
-**Reference**: QUICK_START_GUIDE.md → "Trading Engine Logic"
+### Database Migrations
 
-### Phase 3: Communities & Markets (Week 3)
-- [ ] Community CRUD
-- [ ] Market creation
-- [ ] Multiple outcomes support
-- [ ] Market resolution
-- [ ] Image support
+Create a new migration:
+```bash
+alembic revision --autogenerate -m "description"
+```
 
-**Reference**: ONE_SHOT_PROMPT.md → "Required Features" sections 2-3
+Apply migrations:
+```bash
+alembic upgrade head
+```
 
-### Phase 4: Portfolio & Display (Week 4)
-- [ ] Portfolio views
-- [ ] Position calculations
-- [ ] Trade history
-- [ ] Orderbook UI (side-by-side)
-- [ ] Order form with position display
+## API Endpoints
 
-**Reference**: QUICK_START_GUIDE.md → "Position Display Pattern"
+- `POST /api/v1/auth/register` - Register a new user
+- `POST /api/v1/auth/login` - Login and get JWT token
+- `GET /api/v1/users/me` - Get current user info
+- `GET /api/v1/communities` - List public communities
+- `POST /api/v1/communities` - Create a community
+- `POST /api/v1/communities/join` - Join a community with invite code
+- `GET /api/v1/markets` - List markets
+- `POST /api/v1/markets` - Create a market
+- `POST /api/v1/trading/orders` - Place an order
+- `GET /api/v1/trading/markets/{market_id}/orderbook/{outcome}` - Get orderbook
+- `WebSocket /ws/{market_id}` - Real-time orderbook updates
 
-### Phase 5: Social Features (Week 5)
-- [ ] Feed with voting
-- [ ] Market chat
-- [ ] Confirmation slips
-- [ ] Leaderboards
+## License
 
-**Reference**: ONE_SHOT_PROMPT.md → "Required Features" sections 6-9
-
-### Phase 6: Advanced Features (Week 6)
-- [ ] Community tokens
-- [ ] Enhanced admin system
-- [ ] Email domain restrictions
-- [ ] Karma system
-
-**Reference**: GOD_PROMPT.md → "New Features to Add"
-
-### Phase 7: Polish & Launch (Week 7)
-- [ ] UI/UX refinements
-- [ ] Performance optimization
-- [ ] Testing
-- [ ] Documentation
-
-## 🔑 Key Principles (Don't Forget!)
-
-1. **Buy-Only Model is Sacred**: Users only "buy" YES or NO - never change this
-2. **Intuitive First**: Non-traders should understand everything without explanation
-3. **Visual Clarity**: Prices as percentages, clear position displays, color coding
-4. **Social Engagement**: Feed, voting, and leaderboards drive usage
-5. **Performance Matters**: Sub-100ms orderbook updates, cached leaderboards
-
-## 📋 Quick Checklist
-
-Before starting, ensure you understand:
-- [ ] The buy-only trading model (YES + NO = 1.0)
-- [ ] Position closing logic (buying opposite closes existing)
-- [ ] Orderbook display (side-by-side, inverted asks)
-- [ ] Feed algorithm (trending score calculation)
-- [ ] Leaderboard metrics (trades, profit, karma)
-
-## 🆘 Getting Help
-
-- **Concept Questions**: Check GOD_PROMPT.md
-- **Implementation Questions**: Check QUICK_START_GUIDE.md
-- **Quick Reference**: Check ONE_SHOT_PROMPT.md
-
-## 🎨 Design Philosophy
-
-> "Make prediction markets accessible to non-traders through intuitive UI, clear payoff displays, and social engagement."
-
-Every feature should serve this goal. If something feels confusing to a non-trader, simplify it.
-
----
-
-## Next Steps
-
-1. **Read ONE_SHOT_PROMPT.md** completely
-2. **Set up your development environment**
-3. **Start with Phase 1** (Foundation)
-4. **Reference other docs as needed**
-
-Good luck building BetThat 2.0! 🚀
+MIT
